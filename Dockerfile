@@ -4,21 +4,14 @@ USER root
 
 WORKDIR /app
 
-COPY ../a2f-wrapper/requirements.txt .
-RUN pip install --index-url https://pypi.org/simple/ -r requirements.txt
+COPY requirements.txt /app/requirements.txt
+COPY app /app/app
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh \
+    && pip install --no-cache-dir --index-url https://pypi.org/simple/ -r /app/requirements.txt
 
-COPY ../a2f-wrapper/app ./app
-
-ENV A2F_MODE=local
-ENV A2F_GRPC_ADDR=localhost:52000
 ENV PORT=8080
 
-EXPOSE 8080
+EXPOSE 8080 52000 8000
 
-CMD ["sh", "-c", \
-  "/opt/nim/start-server.sh & \
-  until grpc_health_probe -addr=localhost:52000 2>/dev/null || \
-        python -c \"import grpc; ch=grpc.insecure_channel('localhost:52000'); grpc.channel_ready_future(ch).result(timeout=3)\" 2>/dev/null; do \
-    echo 'Waiting for A2F gRPC...'; sleep 5; \
-  done && \
-  uvicorn app.main:app --host 0.0.0.0 --port 8080"]
+ENTRYPOINT ["/app/entrypoint.sh"]
