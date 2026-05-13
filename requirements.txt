@@ -1,6 +1,6 @@
 fastapi==0.115.5
 uvicorn[standard]==0.32.0
-python-multipart==0.0.19
+python-multipart==0.0.27
 grpcio==1.66.1
 grpcio-tools==1.66.1
 pydantic==2.9.2
